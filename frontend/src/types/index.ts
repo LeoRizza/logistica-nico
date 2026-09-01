@@ -285,29 +285,29 @@ export interface CreateFuelLogInput {
 // Dashboard Types
 export interface DashboardPnLResponse {
   period: {
-    startDate: string;
-    endDate: string;
+    startDate: string | Date;
+    endDate: string | Date;
   };
-  revenue: {
-    label: string;
-    amount: number;
-    description: string;
+  operatingIncome: {
+    totalTrips: number;
+    grossRevenue: number;
+    tripCosts: {
+      totalAmountToPay: number;
+      totalPerDiemsDelivered: number;
+      totalUnforeseeExpenses: number;
+      totalFuelCosts: number;
+    };
+    netIncome: number;
   };
-  costs: {
-    label: string;
-    amount: number;
-    description: string;
+  indirectCosts: {
+    total: number;
+    byCategory: Record<string, number>;
   };
-  netProfit: {
-    label: string;
-    amount: number;
-    description: string;
+  netProfitCompany: number;
+  summary: {
+    margin: number;
+    marginPercentage: string;
   };
-  expensesByCategory: Array<{
-    category: string;
-    amount: number;
-    percentage: number;
-  }>;
 }
 
 // API Response Types

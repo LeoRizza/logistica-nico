@@ -18,7 +18,7 @@ export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { post } = useApi();
+  const { get } = useApi();
 
   const handleCalculate = useCallback(async () => {
     if (!startDate || !endDate) {
@@ -35,10 +35,7 @@ export const DashboardPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await post('/dashboard/pnl', {
-        startDate,
-        endDate,
-      });
+      const response = await get(`/dashboard/pnl?startDate=${startDate}&endDate=${endDate}`);
 
       if (!response || !response.success) {
         throw new Error('Error al consultar el estado de resultados');
@@ -53,10 +50,10 @@ export const DashboardPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, post]);
+  }, [startDate, endDate, get]);
 
   const isNetProfitPositive =
-    dashboardData && dashboardData.netProfit.amount >= 0;
+    dashboardData && dashboardData.netProfitCompany >= 0;
 
   return (
     <div className="space-y-6">
@@ -136,10 +133,10 @@ export const DashboardPage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-blue-100 text-sm uppercase tracking-wide font-medium">
-                    {dashboardData.revenue.label}
+                    Ingresos Operativos
                   </p>
                   <p className="text-4xl font-bold mt-2">
-                    ${dashboardData.revenue.amount.toFixed(2)}
+                    ${dashboardData.operatingIncome.grossRevenue.toFixed(2)}
                   </p>
                 </div>
                 <svg
@@ -157,7 +154,7 @@ export const DashboardPage: React.FC = () => {
                 </svg>
               </div>
               <p className="text-blue-100 text-sm">
-                {dashboardData.revenue.description}
+                Total de ingresos generados en el período
               </p>
             </div>
 
@@ -166,10 +163,10 @@ export const DashboardPage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-orange-100 text-sm uppercase tracking-wide font-medium">
-                    {dashboardData.costs.label}
+                    Costos Indirectos
                   </p>
                   <p className="text-4xl font-bold mt-2">
-                    ${dashboardData.costs.amount.toFixed(2)}
+                    ${dashboardData.indirectCosts.total.toFixed(2)}
                   </p>
                 </div>
                 <svg
@@ -187,11 +184,11 @@ export const DashboardPage: React.FC = () => {
                 </svg>
               </div>
               <p className="text-orange-100 text-sm">
-                {dashboardData.costs.description}
+                Gastos generales de la empresa
               </p>
             </div>
 
-            {/* Ganancia Neta */}
+            {/* Ganancia Neta Empresa */}
             <div
               className={`bg-gradient-to-br rounded-lg shadow-lg p-8 text-white ${
                 isNetProfitPositive
@@ -208,10 +205,10 @@ export const DashboardPage: React.FC = () => {
                         : 'text-red-100'
                     }`}
                   >
-                    {dashboardData.netProfit.label}
+                    Ganancia Neta Empresa
                   </p>
                   <p className="text-4xl font-bold mt-2">
-                    ${dashboardData.netProfit.amount.toFixed(2)}
+                    ${dashboardData.netProfitCompany.toFixed(2)}
                   </p>
                 </div>
                 <svg
@@ -243,7 +240,7 @@ export const DashboardPage: React.FC = () => {
                     : 'text-red-100'
                 }`}
               >
-                {dashboardData.netProfit.description}
+                Resultado final después de costos indirectos
               </p>
             </div>
           </div>
@@ -254,35 +251,44 @@ export const DashboardPage: React.FC = () => {
               Desglose de Gastos por Categoría
             </h2>
 
-            {dashboardData.expensesByCategory &&
-            dashboardData.expensesByCategory.length > 0 ? (
+            {dashboardData.indirectCosts.byCategory &&
+            Object.entries(dashboardData.indirectCosts.byCategory).length > 0 ? (
               <div className="space-y-4">
-                {dashboardData.expensesByCategory.map((expense, index) => (
-                  <div key={index}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">
-                        {expense.category}
-                      </span>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-900">
-                          ${expense.amount.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {expense.percentage.toFixed(1)}%
-                        </p>
+                {Object.entries(dashboardData.indirectCosts.byCategory).map(
+                  ([category, amount]) => {
+                    const percentage =
+                      dashboardData.indirectCosts.total > 0
+                        ? (amount / dashboardData.indirectCosts.total) * 100
+                        : 0;
+
+                    return (
+                      <div key={category}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">
+                            {category}
+                          </span>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-gray-900">
+                              ${amount.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {percentage.toFixed(1)}%
+                            </p>
+                          </div>
+                        </div>
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all"
+                            style={{
+                              width: `${Math.min(percentage, 100)}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all"
-                        style={{
-                          width: `${Math.min(expense.percentage, 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                    );
+                  }
+                )}
               </div>
             ) : (
               <div className="text-center py-12">
@@ -307,13 +313,13 @@ export const DashboardPage: React.FC = () => {
                       Período Analizado
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                      {new Date(
-                        dashboardData.period.startDate
-                      ).toLocaleDateString('es-ES')}{' '}
+                      {typeof dashboardData.period.startDate === 'string'
+                        ? new Date(dashboardData.period.startDate).toLocaleDateString('es-ES')
+                        : (dashboardData.period.startDate as Date).toLocaleDateString('es-ES')}{' '}
                       -{' '}
-                      {new Date(
-                        dashboardData.period.endDate
-                      ).toLocaleDateString('es-ES')}
+                      {typeof dashboardData.period.endDate === 'string'
+                        ? new Date(dashboardData.period.endDate).toLocaleDateString('es-ES')
+                        : (dashboardData.period.endDate as Date).toLocaleDateString('es-ES')}
                     </td>
                   </tr>
                   <tr className="border-b border-gray-200 bg-blue-50">
@@ -321,7 +327,7 @@ export const DashboardPage: React.FC = () => {
                       Ingresos Operativos
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-blue-900 text-right">
-                      ${dashboardData.revenue.amount.toFixed(2)}
+                      ${dashboardData.operatingIncome.grossRevenue.toFixed(2)}
                     </td>
                   </tr>
                   <tr className="border-b border-gray-200 bg-red-50">
@@ -329,7 +335,7 @@ export const DashboardPage: React.FC = () => {
                       Costos Indirectos (Gastos Empresa)
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-red-900 text-right">
-                      -${dashboardData.costs.amount.toFixed(2)}
+                      -${dashboardData.indirectCosts.total.toFixed(2)}
                     </td>
                   </tr>
                   <tr
@@ -346,7 +352,7 @@ export const DashboardPage: React.FC = () => {
                           : 'text-red-900'
                       }`}
                     >
-                      Ganancia Neta
+                      Ganancia Neta Empresa
                     </td>
                     <td
                       className={`px-4 py-3 text-sm font-bold text-right ${
@@ -355,7 +361,7 @@ export const DashboardPage: React.FC = () => {
                           : 'text-red-900'
                       }`}
                     >
-                      ${dashboardData.netProfit.amount.toFixed(2)}
+                      ${dashboardData.netProfitCompany.toFixed(2)}
                     </td>
                   </tr>
                 </tbody>

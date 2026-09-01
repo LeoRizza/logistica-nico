@@ -112,7 +112,7 @@ export class DashboardService extends BaseService {
       const trips = await this.prisma.trip.findMany({
         where: {
           deleted_at: null,
-          status: 'COMPLETED', // Solo viajes completados
+          status: { not: 'CANCELLED' },
           scheduled_date: {
             gte: startDate,
             lte: endDate,
@@ -136,7 +136,7 @@ export class DashboardService extends BaseService {
               gte: startDate,
               lte: endDate,
             },
-            status: 'COMPLETED',
+            status: { not: 'CANCELLED' },
           },
         },
         include: {
@@ -147,8 +147,8 @@ export class DashboardService extends BaseService {
       // Calcular ingresos brutos (gross revenue)
       let grossRevenue = 0;
       trips.forEach(trip => {
-        if (trip.net_weight_kg && trip.rate_per_kg) {
-          grossRevenue += trip.net_weight_kg * trip.rate_per_kg;
+        if (trip.loaded_weight_kg && trip.rate_per_kg) {
+          grossRevenue += trip.loaded_weight_kg * trip.rate_per_kg;
         }
       });
 
