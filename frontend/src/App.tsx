@@ -6,6 +6,8 @@ import { TripsPage } from './pages/TripsPage';
 import { SettlementsPage } from './pages/SettlementsPage';
 import { LoginPage } from './pages/LoginPage';
 import { ClientsPage } from './pages/ClientsPage';
+import { CompanyExpensesPage } from './pages/CompanyExpensesPage';
+import { DashboardPage } from './pages/DashboardPage';
 import { Layout } from './components/layout/Layout';
 
 // Componente protegido que verifica si hay token
@@ -34,11 +36,13 @@ function App() {
           <Route path="/trips" element={<TripsPage />} />
           <Route path="/settlements" element={<SettlementsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
-          <Route path="/" element={<Navigate to="/settlements" replace />} />
+          <Route path="/company-expenses" element={<CompanyExpensesPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>
 
         {/* Ruta por defecto */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );

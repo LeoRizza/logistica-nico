@@ -12,6 +12,7 @@ import expenseRoutes from './expenseRoutes';
 import fuelRoutes from './fuelRoutes';
 import settlementRoutes from './settlementRoutes';
 import clientRoutes from './clientRoutes';
+import dashboardRoutes from './dashboardRoutes';
 
 const router = Router();
 
@@ -48,6 +49,7 @@ router.use('/expenses', authenticateUser, expenseRoutes);
 router.use('/fuel', authenticateUser, fuelRoutes);
 router.use('/settlements', authenticateUser, settlementRoutes);
 router.use('/clients', authenticateUser, clientRoutes);
+router.use('/dashboard', authenticateUser, dashboardRoutes);
 
 // Health check endpoint
 router.get('/health', (req: Request, res: Response): void => {

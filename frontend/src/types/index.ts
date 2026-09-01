@@ -197,6 +197,57 @@ export interface SettlementDTO extends SettlementReceipt {
   deleted_at?: string | null;
 }
 
+// CompanyExpense Types
+export interface CompanyExpense {
+  id: string;
+  name: string;
+  description?: string | null;
+  category: string;
+  amount: number;
+  currency: string;
+  expense_date: string | Date;
+  due_date?: string | Date | null;
+  is_recurring: boolean;
+  recurrence_period?: string | null;
+  payment_status: string;
+  payment_date?: string | Date | null;
+  invoice_number?: string | null;
+  notes?: string | null;
+  created_by_id: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
+}
+
+export interface CreateCompanyExpenseInput {
+  name: string;
+  description?: string;
+  category: string;
+  amount: number;
+  currency?: string;
+  expense_date?: string | Date;
+  due_date?: string | Date;
+  is_recurring?: boolean;
+  recurrence_period?: string;
+  invoice_number?: string;
+  notes?: string;
+}
+
+export interface UpdateCompanyExpenseInput {
+  name?: string;
+  description?: string;
+  category?: string;
+  amount?: number;
+  currency?: string;
+  due_date?: string | Date;
+  is_recurring?: boolean;
+  recurrence_period?: string;
+  payment_status?: string;
+  payment_date?: string | Date;
+  invoice_number?: string;
+  notes?: string;
+}
+
 // Fuel Types
 export interface FuelLog {
   id: string;
@@ -229,6 +280,34 @@ export interface CreateFuelLogInput {
   notes?: string;
   trip_id?: string;
   created_by_id: string;
+}
+
+// Dashboard Types
+export interface DashboardPnLResponse {
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  revenue: {
+    label: string;
+    amount: number;
+    description: string;
+  };
+  costs: {
+    label: string;
+    amount: number;
+    description: string;
+  };
+  netProfit: {
+    label: string;
+    amount: number;
+    description: string;
+  };
+  expensesByCategory: Array<{
+    category: string;
+    amount: number;
+    percentage: number;
+  }>;
 }
 
 // API Response Types
