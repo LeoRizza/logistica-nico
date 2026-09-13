@@ -19,7 +19,6 @@ export interface PNLReport {
       totalAmountToPay: number;
       totalPerDiemsDelivered: number;
       totalUnforeseeExpenses: number;
-      totalFuelCosts: number;
     };
     netIncome: number; // grossRevenue - tripCosts total
   };
@@ -102,7 +101,6 @@ export class DashboardService extends BaseService {
         totalAmountToPay: number;
         totalPerDiemsDelivered: number;
         totalUnforeseeExpenses: number;
-        totalFuelCosts: number;
       };
       netIncome: number;
     }>
@@ -116,13 +114,6 @@ export class DashboardService extends BaseService {
           scheduled_date: {
             gte: startDate,
             lte: endDate,
-          },
-        },
-        include: {
-          fuelLogs: {
-            where: {
-              deleted_at: null,
-            },
           },
         },
       });
@@ -156,7 +147,6 @@ export class DashboardService extends BaseService {
       let totalAmountToPay = 0;
       let totalPerDiemsDelivered = 0;
       let totalUnforeseeExpenses = 0;
-      let totalFuelCosts = 0;
 
       trips.forEach(trip => {
         if (trip.actual_cost) {
@@ -167,20 +157,13 @@ export class DashboardService extends BaseService {
         }
       });
 
-      // Sumar costos de combustible
-      trips.forEach(trip => {
-        trip.fuelLogs.forEach(fuelLog => {
-          totalFuelCosts += fuelLog.total_cost;
-        });
-      });
-
       // Sumar gastos de viaje (TripExpense)
       tripExpenses.forEach(expense => {
         totalUnforeseeExpenses += expense.amount;
       });
 
       // Calcular total de costos
-      const totalTripCosts = totalAmountToPay + totalPerDiemsDelivered + totalUnforeseeExpenses + totalFuelCosts;
+      const totalTripCosts = totalAmountToPay + totalPerDiemsDelivered + totalUnforeseeExpenses;
 
       // Calcular ingreso neto operativo
       const netIncome = grossRevenue - totalTripCosts;
@@ -193,7 +176,6 @@ export class DashboardService extends BaseService {
             totalAmountToPay: parseFloat(totalAmountToPay.toFixed(2)),
             totalPerDiemsDelivered: parseFloat(totalPerDiemsDelivered.toFixed(2)),
             totalUnforeseeExpenses: parseFloat(totalUnforeseeExpenses.toFixed(2)),
-            totalFuelCosts: parseFloat(totalFuelCosts.toFixed(2)),
           },
           netIncome: parseFloat(netIncome.toFixed(2)),
         },
@@ -229,6 +211,17 @@ export class DashboardService extends BaseService {
         },
       });
 
+      // Obtener todos los registros de combustible en el período
+      const fuelLogs = await this.prisma.fuelLog.findMany({
+        where: {
+          deleted_at: null,
+          created_at: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      });
+
       // Calcular total y agrupar por categoría
       let total = 0;
       const byCategory: Record<string, number> = {};
@@ -241,6 +234,19 @@ export class DashboardService extends BaseService {
         }
         byCategory[expense.category] += expense.amount;
       });
+
+      // Sumar costos de combustible
+      let fuelTotal = 0;
+      fuelLogs.forEach(fuelLog => {
+        fuelTotal += fuelLog.total_cost;
+      });
+
+      // Añadir costos de combustible al total y a la categoría FUEL
+      total += fuelTotal;
+      if (!byCategory['FUEL']) {
+        byCategory['FUEL'] = 0;
+      }
+      byCategory['FUEL'] += fuelTotal;
 
       // Redondear todos los valores
       const roundedByCategory: Record<string, number> = {};
