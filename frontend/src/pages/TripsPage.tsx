@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Trip, Driver, Vehicle, Client, CreateTripRequest } from '../types/index';
 import { TripForm } from '../components/trips/TripForm';
 import { Modal } from '../components/common/Modal';
-import { FuelFormModal } from '../components/fuel/FuelFormModal';
 import { useApi } from '../hooks/useApi';
 
 export const TripsPage: React.FC = () => {
@@ -14,9 +13,6 @@ export const TripsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
-  const [isFuelModalOpen, setIsFuelModalOpen] = useState(false);
-  const [selectedVehicleForFuel, setSelectedVehicleForFuel] = useState<Vehicle | null>(null);
-  const [selectedTripForFuel, setSelectedTripForFuel] = useState<Trip | null>(null);
 
   // Use the API hook with default base URL
   const { post, get, put } = useApi();
@@ -113,27 +109,6 @@ export const TripsPage: React.FC = () => {
     setSelectedTrip(null);
   };
 
-  const handleOpenFuelModal = (trip: Trip) => {
-    const vehicle = vehicles.find((v) => v.id === trip.vehicle_id);
-    if (vehicle) {
-      setSelectedVehicleForFuel(vehicle);
-      setSelectedTripForFuel(trip);
-      setIsFuelModalOpen(true);
-    }
-  };
-
-  const handleCloseFuelModal = () => {
-    setIsFuelModalOpen(false);
-    setSelectedVehicleForFuel(null);
-    setSelectedTripForFuel(null);
-  };
-
-  const handleFuelSuccess = () => {
-    // Reload trips to get the updated fuel logs
-    loadTrips();
-    handleCloseFuelModal();
-  };
-
   // Map Prisma Trip to CreateTripRequest format for the form
   const mappedInitialData = selectedTrip
     ? {
@@ -202,15 +177,6 @@ export const TripsPage: React.FC = () => {
           initialData={mappedInitialData}
         />
       </Modal>
-
-      {/* Fuel Form Modal */}
-      <FuelFormModal
-        isOpen={isFuelModalOpen}
-        onClose={handleCloseFuelModal}
-        vehicle={selectedVehicleForFuel}
-        trip={selectedTripForFuel}
-        onSuccess={handleFuelSuccess}
-      />
 
       {/* Trips Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -312,32 +278,12 @@ export const TripsPage: React.FC = () => {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center space-x-2 flex items-center justify-center">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                         <button
                           onClick={() => handleEditTrip(trip)}
                           className="px-3 py-1 bg-blue-100 text-blue-700 font-medium rounded hover:bg-blue-200 transition-colors text-xs"
                         >
                           Editar
-                        </button>
-                        <button
-                          onClick={() => handleOpenFuelModal(trip)}
-                          title="Cargar Combustible"
-                          className="px-3 py-1 bg-amber-100 text-amber-700 font-medium rounded hover:bg-amber-200 transition-colors text-xs flex items-center gap-1"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          Gasoil
                         </button>
                       </td>
                     </tr>
