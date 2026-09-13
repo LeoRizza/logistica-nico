@@ -30,6 +30,7 @@ export interface CreateTripRequest {
   load_description?: string;
   load_weight_tons?: number;
   load_volume_m3?: number;
+  invoice_number?: string;
   notes?: string;
 }
 
@@ -101,6 +102,7 @@ export interface Trip {
   loaded_weight_kg?: number | null;
   net_weight_kg?: number | null;
   rate_per_kg?: number | null;
+  invoice_number?: string | null;
   notes?: string | null;
   created_at: Date;
   updated_at: Date;

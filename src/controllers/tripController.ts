@@ -39,6 +39,7 @@ export class TripController extends BaseController {
         loaded_weight_kg,
         net_weight_kg,
         rate_per_kg,
+        invoice_number,
         status,
         notes,
       } = req.body;
@@ -105,6 +106,7 @@ export class TripController extends BaseController {
         loaded_weight_kg: parsedLoadedWeightKg,
         net_weight_kg: parsedNetWeightKg,
         rate_per_kg: parsedRatePerKg,
+        invoice_number,
         status: status || 'PENDING',
         notes,
         unforesee_expenses,
@@ -225,6 +227,7 @@ export class TripController extends BaseController {
         loaded_weight_kg,
         net_weight_kg,
         rate_per_kg,
+        invoice_number,
         notes,
         status,
       } = req.body;
@@ -258,6 +261,7 @@ export class TripController extends BaseController {
         loaded_weight_kg: parsedLoadedWeightKg,
         net_weight_kg: parsedNetWeightKg,
         rate_per_kg: parsedRatePerKg,
+        invoice_number,
         notes,
         unforesee_expenses,
         status,

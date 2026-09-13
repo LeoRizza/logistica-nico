@@ -187,6 +187,7 @@ model Trip {
   loaded_weight_kg  Float?
   net_weight_kg     Float?
   rate_per_kg       Float?
+  invoice_number    String?
   notes             String?
 
   // Timestamps

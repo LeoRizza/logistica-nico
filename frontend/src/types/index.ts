@@ -149,6 +149,8 @@ export interface CreateTripRequest {
   loaded_weight_kg?: number;
   net_weight_kg?: number;
   rate_per_kg?: number;
+  load_description?: string;
+  invoice_number?: string;
 }
 
 // Settlement Types

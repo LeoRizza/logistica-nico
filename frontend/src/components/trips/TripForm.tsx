@@ -32,6 +32,8 @@ const defaultValues: CreateTripRequest = {
   loaded_weight_kg: 0,
   net_weight_kg: 0,
   rate_per_kg: 0,
+  load_description: '',
+  invoice_number: '',
 };
 
 export const TripForm: React.FC<TripFormProps> = ({
@@ -549,6 +551,38 @@ export const TripForm: React.FC<TripFormProps> = ({
               <option value="CANCELLED">Cancelado</option>
             </select>
           </div>
+
+          {/* Descripción de la Carga */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Descripción de la Carga
+            </label>
+            <input
+              type="text"
+              name="load_description"
+              value={formData.load_description || ''}
+              onChange={handleChange}
+              placeholder="Ej: Soja, Pallets de papel..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={submitLoading || loading}
+            />
+          </div>
+
+          {/* Número de Factura */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Número de Factura (Opcional)
+            </label>
+            <input
+              type="text"
+              name="invoice_number"
+              value={formData.invoice_number || ''}
+              onChange={handleChange}
+              placeholder="Ej: FC-0001-00001234"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={submitLoading || loading}
+            />
+          </div>
         </div>
       </div>
 
@@ -615,53 +649,7 @@ export const TripForm: React.FC<TripFormProps> = ({
         </div>
       </div>
 
-        {/* Registro de Combustible */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Registro de Combustible
-        </h2>
 
-        {fuelLogs && fuelLogs.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">Fecha</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">Odómetro (km)</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">Litros</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">Precio/L</th>
-                  <th className="px-4 py-2 text-right font-medium text-gray-600">Total ($)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {fuelLogs.map((fuel, idx) => (
-                  <tr key={fuel.id || idx} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 text-gray-900">
-                      {new Date(fuel.created_at).toLocaleDateString('es-ES')}
-                    </td>
-                    <td className="px-4 py-2 text-gray-900">
-                      {Number(fuel.odometer_reading).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-2 text-gray-900">
-                      {Number(fuel.liters_loaded).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-2 text-gray-900">
-                      ${Number(fuel.fuel_price_per_liter).toFixed(2)}
-                    </td>
-                    <td className="px-4 py-2 text-right font-medium text-gray-900">
-                      ${Number(fuel.total_cost).toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-6 text-gray-500">
-            <p className="text-sm">No hay cargas de combustible registradas en este viaje</p>
-          </div>
-        )}
-      </div>
 
         {/* Gastos Imprevistos */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -797,21 +785,17 @@ export const TripForm: React.FC<TripFormProps> = ({
                       <span>Gastos de Ruta</span>
                       <span className="text-gray-900 font-medium">${formData.unforesee_expenses.reduce((sum, exp) => sum + exp.amount, 0).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Combustible</span>
-                      <span className="text-gray-900 font-medium">${(formData.fuelLogs?.reduce((sum, log) => sum + (log.total_cost || 0), 0) || 0).toFixed(2)}</span>
-                    </div>
                   </div>
                   <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
                     <span className="text-sm font-bold text-gray-800">Costo Total</span>
-                    <span className="text-base font-bold text-red-600">-${(formData.amount_to_pay + formData.per_diems_delivered + formData.unforesee_expenses.reduce((sum, exp) => sum + exp.amount, 0) + (formData.fuelLogs?.reduce((sum, log) => sum + (log.total_cost || 0), 0) || 0)).toFixed(2)}</span>
+                    <span className="text-base font-bold text-red-600">-${(formData.amount_to_pay + formData.per_diems_delivered + formData.unforesee_expenses.reduce((sum, exp) => sum + exp.amount, 0)).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
               {/* GANANCIA NETA */}
               {(() => {
                 const totalRevenue = (formData.loaded_weight_kg || 0) * (formData.rate_per_kg || 0);
-                const totalCosts = formData.amount_to_pay + formData.per_diems_delivered + formData.unforesee_expenses.reduce((sum, exp) => sum + exp.amount, 0) + (formData.fuelLogs?.reduce((sum, log) => sum + (log.total_cost || 0), 0) || 0);
+                const totalCosts = formData.amount_to_pay + formData.per_diems_delivered + formData.unforesee_expenses.reduce((sum, exp) => sum + exp.amount, 0);
                 const netProfit = totalRevenue - totalCosts;
                 const profitIsPositive = netProfit >= 0;
                 return (

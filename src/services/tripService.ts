@@ -52,6 +52,7 @@ interface CreateTripInput {
   loaded_weight_kg?: number;
   net_weight_kg?: number;
   rate_per_kg?: number;
+  invoice_number?: string;
   status?: string;
   notes?: string;
   unforesee_expenses?: UnforeseeExpense[];
@@ -79,6 +80,7 @@ interface UpdateTripInput {
   loaded_weight_kg?: number | null;
   net_weight_kg?: number | null;
   rate_per_kg?: number | null;
+  invoice_number?: string | null;
   notes?: string | null;
   unforesee_expenses?: UnforeseeExpense[];
   status?: string;
@@ -138,6 +140,7 @@ export class TripService extends BaseService {
           loaded_weight_kg: tripData.loaded_weight_kg,
           net_weight_kg: tripData.net_weight_kg,
           rate_per_kg: tripData.rate_per_kg,
+          invoice_number: tripData.invoice_number,
           notes: tripData.notes,
           created_by_id: tripData.created_by_id,
           status: tripData.status || 'PENDING',
@@ -304,6 +307,7 @@ export class TripService extends BaseService {
           ...(tripData.loaded_weight_kg !== undefined && { loaded_weight_kg: tripData.loaded_weight_kg }),
           ...(tripData.net_weight_kg !== undefined && { net_weight_kg: tripData.net_weight_kg }),
           ...(tripData.rate_per_kg !== undefined && { rate_per_kg: tripData.rate_per_kg }),
+          ...(tripData.invoice_number !== undefined && { invoice_number: tripData.invoice_number }),
           ...(tripData.notes !== undefined && { notes: tripData.notes }),
           ...(tripData.status && { status: tripData.status }),
           ...(tripData.unforesee_expenses && tripData.unforesee_expenses.length > 0 && {

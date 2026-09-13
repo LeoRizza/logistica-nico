@@ -133,6 +133,8 @@ export const TripsPage: React.FC = () => {
         loaded_weight_kg: (selectedTrip as any).loaded_weight_kg,
         net_weight_kg: (selectedTrip as any).net_weight_kg,
         rate_per_kg: (selectedTrip as any).rate_per_kg,
+        load_description: (selectedTrip as any).load_description || '',
+        invoice_number: (selectedTrip as any).invoice_number || '',
       }
     : undefined;
 
@@ -199,6 +201,9 @@ export const TripsPage: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Carta de Porte
                 </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Factura
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Distancia (KM)
                 </th>
@@ -219,7 +224,7 @@ export const TripsPage: React.FC = () => {
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center">
+                  <td colSpan={10} className="px-6 py-8 text-center">
                     <div className="inline-block">
                       <div className="h-8 w-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
                     </div>
@@ -227,7 +232,7 @@ export const TripsPage: React.FC = () => {
                 </tr>
               ) : trips.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={10} className="px-6 py-8 text-center text-gray-500">
                     No hay viajes registrados
                   </td>
                 </tr>
@@ -254,6 +259,18 @@ export const TripsPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {trip.reference_number}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                        {(trip as any).invoice_number ? (
+                          <span className="text-gray-800 font-medium">{(trip as any).invoice_number}</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-md border border-red-200">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Sin Factura
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
                         {Number(trip.distance_km || 0).toFixed(2)} km
