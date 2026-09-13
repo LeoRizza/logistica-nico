@@ -142,16 +142,21 @@ export class FuelService extends BaseService {
 
   /**
    * Obtiene todos los registros de combustible de un vehículo (paginado)
+   * Soporta filtrado opcional por rango de fechas
    * 
    * @param vehicleId ID del vehículo
    * @param page Número de página
    * @param limit Límite de registros por página
+   * @param startDate Fecha de inicio (opcional, formato ISO 8601)
+   * @param endDate Fecha de fin (opcional, formato ISO 8601)
    * @returns ServiceResponse con lista paginada de FuelLogs
    */
   async getFuelLogsByVehicle(
     vehicleId: string,
     page: number,
-    limit: number
+    limit: number,
+    startDate?: string | Date,
+    endDate?: string | Date
   ): Promise<ServiceResponse<{ data: FuelLogDTO[]; total: number; page: number; limit: number; totalPages: number }>> {
     try {
       // Validar que el vehículo existe
@@ -165,12 +170,39 @@ export class FuelService extends BaseService {
 
       const { skip, take } = this.calculatePagination(page, limit);
 
+      // Construir la cláusula where dinámica
+      const whereClause: Prisma.FuelLogWhereInput = {
+        vehicle_id: vehicleId,
+        deleted_at: null,
+      };
+
+      // Agregar filtro de fechas si se proporcionan
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Validar que las fechas son válidas
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          return this.createErrorResponse('Invalid date format. Use ISO 8601 format (YYYY-MM-DD)');
+        }
+
+        // Validar que startDate <= endDate
+        if (start > end) {
+          return this.createErrorResponse('Start date must be before or equal to end date');
+        }
+
+        // Configurar el final del día para endDate para incluir todo el día
+        end.setUTCHours(23, 59, 59, 999);
+
+        whereClause.created_at = {
+          gte: start,
+          lte: end,
+        };
+      }
+
       const [fuelLogs, total]: [FuelLog[], number] = await Promise.all([
         this.prisma.fuelLog.findMany({
-          where: {
-            vehicle_id: vehicleId,
-            deleted_at: null,
-          },
+          where: whereClause,
           orderBy: {
             created_at: 'desc',
           },
@@ -178,10 +210,7 @@ export class FuelService extends BaseService {
           take,
         }),
         this.prisma.fuelLog.count({
-          where: {
-            vehicle_id: vehicleId,
-            deleted_at: null,
-          },
+          where: whereClause,
         }),
       ]);
 

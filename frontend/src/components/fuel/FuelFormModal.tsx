@@ -28,6 +28,8 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
   const [error, setError] = useState('');
   const [lastOdometer, setLastOdometer] = useState<number | null>(null);
   const [fuelHistory, setFuelHistory] = useState<FuelLog[]>([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const { post, get } = useApi();
 
@@ -37,8 +39,8 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
       const fetchFuelHistory = async () => {
         try {
           setHistoryLoading(true);
-          // Increased limit to 50 to fetch more history for context-aware filtering
-          const response = await get(`/fuel/vehicle/${vehicle.id}?limit=50`);
+          // Increased limit to 100 to fetch more history for context-aware filtering
+          const response = await get(`/fuel/vehicle/${vehicle.id}?limit=100`);
           
           // Extract logs from response - handle both formats
           const logs: FuelLog[] = response?.data?.data || response?.data || [];
@@ -88,9 +90,25 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
   const totalCost = parseFloat(totalCostInput) || 0;
   
   // Filter history based on context: show only trip logs if trip is provided, else all vehicle logs
-  const displayedHistory = trip 
+  let displayedHistory = trip 
     ? fuelHistory.filter(log => log.trip_id === trip.id)
     : fuelHistory;
+  
+  // Apply local date range filtering
+  if (startDate) {
+    const startTimestamp = new Date(startDate).getTime();
+    displayedHistory = displayedHistory.filter(
+      (log) => new Date(log.created_at).getTime() >= startTimestamp
+    );
+  }
+  if (endDate) {
+    const end = new Date(endDate);
+    end.setUTCHours(23, 59, 59, 999); // Incluir todo el último día
+    const endTimestamp = end.getTime();
+    displayedHistory = displayedHistory.filter(
+      (log) => new Date(log.created_at).getTime() <= endTimestamp
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -352,6 +370,32 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
             {historyLoading && (
               <div className="h-4 w-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
             )}
+          </div>
+
+          {/* Date Range Filter */}
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Fecha Desde
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Fecha Hasta
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm"
+              />
+            </div>
           </div>
 
           {displayedHistory.length === 0 ? (

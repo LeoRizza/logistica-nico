@@ -115,18 +115,40 @@ export class FuelController extends BaseController {
   /**
    * GET /fuel-logs/vehicle/:vehicleId
    * Obtiene todos los registros de combustible de un vehículo (paginado)
+   * Soporta filtrado opcional por rango de fechas con startDate y endDate
    */
   async getFuelLogsByVehicle(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { vehicleId } = req.params;
-      const { page, limit } = this.getPaginationParams(req);
+      const { page, limit, startDate, endDate } = this.getPaginationParams(req) as any;
 
       if (!vehicleId || typeof vehicleId !== 'string') {
         this.sendError(res, 'Vehicle ID is required and must be a string', 400, undefined, req);
         return;
       }
 
-      const result = await this.fuelService.getFuelLogsByVehicle(vehicleId, page, limit);
+      // Validar fechas si se proporcionan
+      if (startDate || endDate) {
+        if (!startDate || typeof startDate !== 'string') {
+          this.sendError(res, 'Start date must be a valid date string when filtering by date range', 400, undefined, req);
+          return;
+        }
+
+        if (!endDate || typeof endDate !== 'string') {
+          this.sendError(res, 'End date must be a valid date string when filtering by date range', 400, undefined, req);
+          return;
+        }
+
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+
+        if (isNaN(startDateObj.getTime()) || isNaN(endDateObj.getTime())) {
+          this.sendError(res, 'Invalid date format. Use ISO 8601 format (YYYY-MM-DD)', 400, undefined, req);
+          return;
+        }
+      }
+
+      const result = await this.fuelService.getFuelLogsByVehicle(vehicleId, page, limit, startDate, endDate);
 
       if (!result.success) {
         this.sendError(res, result.message, 404, undefined, req);
