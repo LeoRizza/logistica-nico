@@ -3,6 +3,20 @@ import { DashboardPnLResponse } from '../types/index';
 import { Button } from '../components/common/Button';
 import { useApi } from '../hooks/useApi';
 
+const CATEGORY_LABELS: Record<string, string> = {
+  SALARIES: 'Salarios',
+  FUEL: 'Combustible',
+  MAINTENANCE: 'Mantenimiento',
+  INSURANCE: 'Seguros',
+  RENT: 'Alquiler',
+  UTILITIES: 'Servicios',
+  OFFICE_SUPPLIES: 'Artículos de Oficina',
+  EQUIPMENT: 'Equipamiento',
+  LEGAL: 'Trámites Legales',
+  MARKETING: 'Marketing',
+  OTHER: 'Otro',
+};
+
 export const DashboardPage: React.FC = () => {
   const [startDate, setStartDate] = useState<string>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1)
@@ -265,7 +279,7 @@ export const DashboardPage: React.FC = () => {
                       <div key={category}>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium text-gray-700">
-                            {category}
+                            {CATEGORY_LABELS[category] || category}
                           </span>
                           <div className="text-right">
                             <p className="text-sm font-semibold text-gray-900">
