@@ -48,15 +48,25 @@ export const CompanyExpenseForm: React.FC<CompanyExpenseFormProps> = ({
   // Initialize form with data when editing
   useEffect(() => {
     if (initialData) {
-      const expenseDate = initialData.expense_date
-        ? new Date(initialData.expense_date).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0];
+      // Convertir expense_date a string YYYY-MM-DD si es Date
+      let expenseDate: string;
+      if (initialData.expense_date) {
+        if (typeof initialData.expense_date === 'string') {
+          expenseDate = initialData.expense_date;
+        } else if (initialData.expense_date instanceof Date) {
+          expenseDate = initialData.expense_date.toISOString().split('T')[0];
+        } else {
+          expenseDate = new Date().toISOString().split('T')[0];
+        }
+      } else {
+        expenseDate = new Date().toISOString().split('T')[0];
+      }
 
-      setFormData((prev) => ({
+      setFormData({
         ...defaultValues,
         ...initialData,
         expense_date: expenseDate,
-      }));
+      });
     } else {
       setFormData(defaultValues);
     }
@@ -217,13 +227,7 @@ export const CompanyExpenseForm: React.FC<CompanyExpenseFormProps> = ({
             <input
               type="date"
               name="expense_date"
-              value={
-                formData.expense_date
-                  ? new Date(formData.expense_date)
-                      .toISOString()
-                      .split('T')[0]
-                  : ''
-              }
+              value={formData.expense_date && typeof formData.expense_date === 'string' ? formData.expense_date : ''}
               onChange={handleChange}
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.expense_date ? 'border-red-500' : 'border-gray-300'
@@ -325,7 +329,11 @@ export const CompanyExpenseForm: React.FC<CompanyExpenseFormProps> = ({
               </p>
               <p className="text-sm font-medium text-gray-900">
                 {formData.expense_date
-                  ? new Date(formData.expense_date).toLocaleDateString('es-ES')
+                  ? new Date(
+                      typeof formData.expense_date === 'string'
+                        ? formData.expense_date + 'T00:00:00'
+                        : formData.expense_date
+                    ).toLocaleDateString('es-ES')
                   : 'No especificada'}
               </p>
             </div>

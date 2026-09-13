@@ -89,7 +89,7 @@ model Driver {
   is_active        Boolean    @default(true)
   license_number   String     @unique
   phone            String?
-  document_number  String?    @unique
+  cuit_cuil        String?    @unique
   
   // Timestamps
   created_at       DateTime   @default(now())

@@ -16,7 +16,7 @@ export class DriverController extends BaseController {
   }
   async createDriver(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { full_name, license_number, license_exp_date, type, phone, document_number } = req.body;
+      const { full_name, license_number, license_exp_date, type, phone, cuit_cuil } = req.body;
 
       // Validar campos requeridos
       if (!full_name || !license_number || !license_exp_date) {
@@ -43,7 +43,7 @@ export class DriverController extends BaseController {
         license_exp_date,
         type,
         phone: phone?.trim(),
-        document_number: document_number?.trim(),
+        cuit_cuil: cuit_cuil?.trim(),
         user_id: userId,
       });
 
@@ -77,7 +77,7 @@ export class DriverController extends BaseController {
 
   async getDriverById(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id || req.params.driverId || req.params.driver_id;
 
       if (!id) {
         this.sendError(res, 'Driver ID is required', 400, undefined, req);
@@ -99,7 +99,7 @@ export class DriverController extends BaseController {
 
   async updateDriver(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id || req.params.driverId || req.params.driver_id;
       const updateData = req.body;
 
       if (!id) {
@@ -127,7 +127,7 @@ export class DriverController extends BaseController {
 
   async deleteDriver(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.params.id || req.params.driverId || req.params.driver_id;
 
       if (!id) {
         this.sendError(res, 'Driver ID is required', 400, undefined, req);

@@ -47,6 +47,16 @@ export class ExpenseService extends BaseService {
         return this.createErrorResponse('Category is required');
       }
 
+      // Ensure expense_date is properly parsed as Date
+      let expenseDate: Date;
+      if (input.expense_date instanceof Date) {
+        expenseDate = input.expense_date;
+      } else if (typeof input.expense_date === 'string') {
+        expenseDate = new Date(input.expense_date);
+      } else {
+        expenseDate = new Date();
+      }
+
       const companyExpense: CompanyExpense = await this.prisma.companyExpense.create({
         data: {
           name: input.name,
@@ -54,12 +64,14 @@ export class ExpenseService extends BaseService {
           category: input.category,
           amount: input.amount,
           currency: input.currency ?? 'USD',
-          expense_date: input.expense_date ?? new Date(),
+          expense_date: expenseDate,
           due_date: input.due_date ?? null,
           is_recurring: input.is_recurring ?? false,
           recurrence_period: input.recurrence_period ?? null,
           invoice_number: input.invoice_number ?? null,
           notes: input.notes ?? null,
+          payment_status: 'PAID',
+          payment_date: new Date(),
           created_by_id: input.created_by_id,
         },
       });
@@ -270,22 +282,33 @@ export class ExpenseService extends BaseService {
         return this.createErrorResponse('Category cannot be empty');
       }
 
+      // Ensure expense_date is properly parsed as Date
+      let expenseDate: Date | undefined;
+      if (input.expense_date instanceof Date) {
+        expenseDate = input.expense_date;
+      } else if (typeof input.expense_date === 'string') {
+        expenseDate = new Date(input.expense_date);
+      }
+
+      const updateData: any = {
+        name: input.name,
+        description: input.description,
+        category: input.category,
+        amount: input.amount,
+        currency: input.currency,
+        expense_date: expenseDate,
+        due_date: input.due_date,
+        is_recurring: input.is_recurring,
+        recurrence_period: input.recurrence_period,
+        payment_status: 'PAID',
+        payment_date: input.payment_date ?? new Date(),
+        invoice_number: input.invoice_number,
+        notes: input.notes,
+      }
+
       const updated: CompanyExpense = await this.prisma.companyExpense.update({
         where: { id },
-        data: {
-          name: input.name,
-          description: input.description,
-          category: input.category,
-          amount: input.amount,
-          currency: input.currency,
-          due_date: input.due_date,
-          is_recurring: input.is_recurring,
-          recurrence_period: input.recurrence_period,
-          payment_status: input.payment_status,
-          payment_date: input.payment_date,
-          invoice_number: input.invoice_number,
-          notes: input.notes,
-        },
+        data: updateData,
       });
 
       const dto = this.mapCompanyExpenseToDTO(updated);

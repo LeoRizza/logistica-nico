@@ -222,6 +222,7 @@ export interface CreateCompanyExpenseInput {
   recurrence_period?: string;
   invoice_number?: string;
   notes?: string;
+  payment_status?: string;
   created_by_id: string;
 }
 
@@ -231,6 +232,7 @@ export interface UpdateCompanyExpenseInput {
   category?: string;
   amount?: number;
   currency?: string;
+  expense_date?: Date;
   due_date?: Date;
   is_recurring?: boolean;
   recurrence_period?: string;

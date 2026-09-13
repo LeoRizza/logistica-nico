@@ -8,7 +8,7 @@ interface CreateDriverInput {
   license_exp_date: Date | string;
   type?: 'PROPIO' | 'CONTRATADO';
   phone?: string;
-  document_number?: string;
+  cuit_cuil?: string;
   user_id: string;
   is_active?: boolean;
 }
@@ -19,7 +19,7 @@ interface UpdateDriverInput {
   license_exp_date?: Date | string;
   type?: 'PROPIO' | 'CONTRATADO';
   phone?: string;
-  document_number?: string;
+  cuit_cuil?: string;
   is_active?: boolean;
 }
 
@@ -53,14 +53,14 @@ export class DriverService extends BaseService {
         return this.createErrorResponse('License number already exists');
       }
 
-      // Validar unicidad de document_number si se proporciona
-      if (driverData.document_number) {
-        const documentExists = await this.prisma.driver.findUnique({
-          where: { document_number: driverData.document_number },
+      // Validar unicidad de cuit_cuil si se proporciona
+      if (driverData.cuit_cuil) {
+        const cuitCuilExists = await this.prisma.driver.findUnique({
+          where: { cuit_cuil: driverData.cuit_cuil },
         });
 
-        if (documentExists) {
-          return this.createErrorResponse('Document number already exists');
+        if (cuitCuilExists) {
+          return this.createErrorResponse('CUIT/CUIL already exists');
         }
       }
 
@@ -71,7 +71,7 @@ export class DriverService extends BaseService {
           license_exp_date: new Date(driverData.license_exp_date),
           type: driverData.type || 'CONTRATADO',
           phone: driverData.phone,
-          document_number: driverData.document_number,
+          cuit_cuil: driverData.cuit_cuil,
           user_id: driverData.user_id,
           is_active: driverData.is_active !== false,
         },
@@ -179,14 +179,14 @@ export class DriverService extends BaseService {
         }
       }
 
-      // Validar unicidad de document_number si se está actualizando
-      if (driverData.document_number && driverData.document_number !== existingDriver.document_number) {
-        const documentExists = await this.prisma.driver.findUnique({
-          where: { document_number: driverData.document_number },
+      // Validar unicidad de cuit_cuil si se está actualizando
+      if (driverData.cuit_cuil && driverData.cuit_cuil !== existingDriver.cuit_cuil) {
+        const cuitCuilExists = await this.prisma.driver.findUnique({
+          where: { cuit_cuil: driverData.cuit_cuil },
         });
 
-        if (documentExists) {
-          return this.createErrorResponse('Document number already exists');
+        if (cuitCuilExists) {
+          return this.createErrorResponse('CUIT/CUIL already exists');
         }
       }
 
@@ -197,7 +197,7 @@ export class DriverService extends BaseService {
       if (driverData.license_exp_date !== undefined) updateData.license_exp_date = new Date(driverData.license_exp_date);
       if (driverData.type !== undefined) updateData.type = driverData.type;
       if (driverData.phone !== undefined) updateData.phone = driverData.phone;
-      if (driverData.document_number !== undefined) updateData.document_number = driverData.document_number;
+      if (driverData.cuit_cuil !== undefined) updateData.cuit_cuil = driverData.cuit_cuil;
       if (driverData.is_active !== undefined) updateData.is_active = driverData.is_active;
 
       const driver = await this.prisma.driver.update({

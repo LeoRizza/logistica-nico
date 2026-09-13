@@ -39,7 +39,7 @@ export interface Driver {
   license_exp_date: string;
   license_number: string;
   phone?: string;
-  document_number?: string;
+  cuit_cuil?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -51,7 +51,7 @@ export interface CreateDriverRequest {
   license_exp_date: string;
   license_number: string;
   phone?: string;
-  document_number?: string;
+  cuit_cuil?: string;
   is_active?: boolean;
 }
 
@@ -231,6 +231,7 @@ export interface CreateCompanyExpenseInput {
   recurrence_period?: string;
   invoice_number?: string;
   notes?: string;
+  payment_status?: string;
 }
 
 export interface UpdateCompanyExpenseInput {
@@ -239,6 +240,7 @@ export interface UpdateCompanyExpenseInput {
   category?: string;
   amount?: number;
   currency?: string;
+  expense_date?: string | Date;
   due_date?: string | Date;
   is_recurring?: boolean;
   recurrence_period?: string;

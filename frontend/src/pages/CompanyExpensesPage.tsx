@@ -231,7 +231,7 @@ export const CompanyExpensesPage: React.FC = () => {
                   category: selectedExpense.category,
                   amount: selectedExpense.amount,
                   currency: selectedExpense.currency,
-                  expense_date: selectedExpense.expense_date,
+                  expense_date: selectedExpense.expense_date ? new Date(selectedExpense.expense_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
                   notes: selectedExpense.notes || '',
                 }
               : undefined
@@ -369,12 +369,12 @@ export const CompanyExpensesPage: React.FC = () => {
               label: 'Fecha del Gasto',
               render: (value) =>
                 value ? new Date(value).toLocaleDateString('es-ES') : '-',
-              width: '15%',
+              width: '18%',
             },
             {
               key: 'name',
               label: 'Nombre',
-              width: '25%',
+              width: '28%',
             },
             {
               key: 'category',
@@ -383,7 +383,7 @@ export const CompanyExpensesPage: React.FC = () => {
                 const cat = EXPENSE_CATEGORIES.find((c) => c.value === value);
                 return cat ? cat.label : value;
               },
-              width: '20%',
+              width: '22%',
             },
             {
               key: 'amount',
@@ -391,29 +391,7 @@ export const CompanyExpensesPage: React.FC = () => {
               render: (value, item) =>
                 `$${value?.toFixed(2)} ${item.currency || 'USD'}`,
               align: 'right',
-              width: '15%',
-            },
-            {
-              key: 'payment_status',
-              label: 'Estado de Pago',
-              render: (value) => {
-                const statusClasses: Record<string, string> = {
-                  PENDING: 'bg-yellow-100 text-yellow-800',
-                  PARTIAL: 'bg-orange-100 text-orange-800',
-                  PAID: 'bg-green-100 text-green-800',
-                  CANCELLED: 'bg-red-100 text-red-800',
-                };
-                return (
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                      statusClasses[value] || 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {value || 'PENDING'}
-                  </span>
-                );
-              },
-              width: '15%',
+              width: '20%',
             },
             {
               key: 'id',
@@ -434,7 +412,7 @@ export const CompanyExpensesPage: React.FC = () => {
                   </button>
                 </div>
               ),
-              width: '10%',
+              width: '12%',
             },
           ]}
           data={expenses}

@@ -66,91 +66,52 @@ export class ExpenseController extends BaseController {
 
    */
 
-  async createCompanyExpense(req: AuthenticatedRequest, res: Response): Promise<void> {
-
+    async createCompanyExpense(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-
       if (!req.user?.id) {
-
         this.sendError(res, 'Unauthorized: User not authenticated', 401, undefined, req);
-
         return;
-
       }
-
-
 
       const { name, description, category, amount, currency, expense_date, due_date, is_recurring, recurrence_period, invoice_number, notes } = req.body;
 
-
-
       const errors: Record<string, string[]> = {};
 
-
-
       if (!name || typeof name !== 'string' || name.trim() === '') {
-
         errors.name = ['Name is required and must be a non-empty string'];
-
       }
-
-
 
       if (!category || typeof category !== 'string' || category.trim() === '') {
-
         errors.category = ['Category is required and must be a non-empty string'];
-
       }
-
-
 
       if (!amount || typeof amount !== 'number' || amount <= 0) {
-
         errors.amount = ['Amount is required, must be a number and greater than 0'];
-
       }
-
-
 
       if (Object.keys(errors).length > 0) {
-
         this.sendError(res, 'Validation failed', 400, errors, req);
-
         return;
-
       }
 
-
+      // Parse expense_date: viene como string YYYY-MM-DD del frontend
+      const expenseDate = expense_date ? new Date(expense_date) : new Date();
 
       const input: CreateCompanyExpenseInput = {
-
         name,
-
         category,
-
         amount,
-
         description: description ?? undefined,
-
         currency: currency ?? 'USD',
-
-        expense_date: expense_date ? new Date(expense_date) : undefined,
-
+        expense_date: expenseDate,
         due_date: due_date ? new Date(due_date) : undefined,
-
         is_recurring: is_recurring ?? false,
-
         recurrence_period: recurrence_period ?? undefined,
-
         invoice_number: invoice_number ?? undefined,
-
         notes: notes ?? undefined,
-
         created_by_id: req.user.id,
-
+        payment_status: 'PAID',
       };
-
-
 
       const result = await this.expenseService.createCompanyExpense(input);
 
@@ -392,93 +353,53 @@ export class ExpenseController extends BaseController {
 
    */
 
-  async updateCompanyExpense(req: AuthenticatedRequest, res: Response): Promise<void> {
-
+    async updateCompanyExpense(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-
       const { id } = req.params;
-
-      const { name, description, category, amount, currency, due_date, is_recurring, recurrence_period, payment_status, payment_date, invoice_number, notes } = req.body;
-
-
+      const { name, description, category, amount, currency, expense_date, due_date, is_recurring, recurrence_period, invoice_number, notes } = req.body;
 
       if (!id || typeof id !== 'string') {
-
         this.sendError(res, 'Company expense ID is required and must be a string', 400, undefined, req);
-
         return;
-
       }
-
-
 
       const errors: Record<string, string[]> = {};
 
-
-
       if (amount !== undefined && (typeof amount !== 'number' || amount <= 0)) {
-
         errors.amount = ['Amount must be a number and greater than 0'];
-
       }
-
-
 
       if (name !== undefined && (typeof name !== 'string' || name.trim() === '')) {
-
         errors.name = ['Name must be a non-empty string'];
-
       }
-
-
 
       if (category !== undefined && (typeof category !== 'string' || category.trim() === '')) {
-
         errors.category = ['Category must be a non-empty string'];
-
       }
-
-
 
       if (Object.keys(errors).length > 0) {
-
         this.sendError(res, 'Validation failed', 400, errors, req);
-
         return;
-
       }
 
-
+      // Parse expense_date: viene como string YYYY-MM-DD del frontend
+      const expenseDate = expense_date ? new Date(expense_date) : undefined;
 
       const input: UpdateCompanyExpenseInput = {
-
         name,
-
         description,
-
         category,
-
         amount,
-
         currency,
-
+        expense_date: expenseDate,
         due_date: due_date ? new Date(due_date) : undefined,
-
         is_recurring,
-
         recurrence_period,
-
-        payment_status,
-
-        payment_date: payment_date ? new Date(payment_date) : undefined,
-
+        payment_status: 'PAID',
+        payment_date: new Date(),
         invoice_number,
-
         notes,
-
       };
-
-
 
       const result = await this.expenseService.updateCompanyExpense(id, input);
 

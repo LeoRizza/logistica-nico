@@ -50,8 +50,8 @@ export const DriverTable: React.FC<DriverTableProps> = ({
       render: (value: string | undefined) => value || '-',
     },
     {
-      key: 'document_number' as const,
-      label: 'Documento',
+      key: 'cuit_cuil' as const,
+      label: 'CUIT / CUIL',
       width: '12%',
       render: (value: string | undefined) => value || '-',
     },

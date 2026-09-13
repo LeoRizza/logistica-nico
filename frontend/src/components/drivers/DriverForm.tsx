@@ -15,7 +15,7 @@ const defaultValues: CreateDriverRequest = {
   license_exp_date: '',
   license_number: '',
   phone: '',
-  document_number: '',
+  cuit_cuil: '',
   is_active: true,
 };
 
@@ -36,8 +36,8 @@ export const DriverForm: React.FC<DriverFormProps> = ({
         type: driver.type,
         license_exp_date: driver.license_exp_date.split('T')[0],
         license_number: driver.license_number,
-        phone: driver.phone || '',
-        document_number: driver.document_number || '',
+        phone: driver.phone ?? '',
+        cuit_cuil: driver.cuit_cuil ?? '',
         is_active: driver.is_active,
       });
     }
@@ -63,8 +63,8 @@ export const DriverForm: React.FC<DriverFormProps> = ({
       }
     }
 
-    if (formData.document_number && formData.document_number.length < 5) {
-      newErrors.document_number = 'El documento debe tener al menos 5 caracteres';
+    if (formData.cuit_cuil && formData.cuit_cuil.length < 10) {
+      newErrors.cuit_cuil = 'El CUIT/CUIL debe tener al menos 10 caracteres';
     }
 
     setErrors(newErrors);
@@ -207,24 +207,24 @@ export const DriverForm: React.FC<DriverFormProps> = ({
         />
       </div>
 
-      {/* Document Number */}
+      {/* CUIT / CUIL */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Documento de Identidad
+          CUIT / CUIL
         </label>
         <input
           type="text"
-          name="document_number"
-          value={formData.document_number}
+          name="cuit_cuil"
+          value={formData.cuit_cuil ?? ''}
           onChange={handleChange}
-          placeholder="Ej: 12345678A"
+          placeholder="Ej: 20-36011935-9"
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            errors.document_number ? 'border-red-500' : 'border-gray-300'
+            errors.cuit_cuil ? 'border-red-500' : 'border-gray-300'
           }`}
           disabled={submitLoading || loading}
         />
-        {errors.document_number && (
-          <p className="text-red-600 text-xs mt-1">{errors.document_number}</p>
+        {errors.cuit_cuil && (
+          <p className="text-red-600 text-xs mt-1">{errors.cuit_cuil}</p>
         )}
       </div>
 
