@@ -31,7 +31,7 @@ export class FuelController extends BaseController {
         return;
       }
 
-      const { vehicle_id, trip_id, liters_loaded, fuel_price_per_liter, total_cost, odometer_reading, fuel_type, station_name, location, notes } = req.body;
+      const { vehicle_id, trip_id, liters_loaded, fuel_price_per_liter, total_cost, odometer_reading, fuel_type, station_name, location, notes, date } = req.body;
 
       // Convertir strings a números si es necesario
       const parsedLitersLoaded = typeof liters_loaded === 'string' ? parseFloat(liters_loaded) : liters_loaded;
@@ -94,6 +94,7 @@ export class FuelController extends BaseController {
         location: location ? location.trim() : undefined,
         notes: notes ? notes.trim() : undefined,
         trip_id: trip_id ?? undefined,
+        date: date ?? undefined,
         created_by_id: req.user.id,
       };
 

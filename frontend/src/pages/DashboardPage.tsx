@@ -69,6 +69,12 @@ export const DashboardPage: React.FC = () => {
   const isNetProfitPositive =
     dashboardData && dashboardData.netProfitCompany >= 0;
 
+  const formatLocalDate = (dateVal: string | Date) => {
+    const dateStr = typeof dateVal === 'string' ? dateVal : dateVal.toISOString();
+    const [year, month, day] = dateStr.split('T')[0].split('-');
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -327,13 +333,7 @@ export const DashboardPage: React.FC = () => {
                       Período Analizado
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 text-right">
-                      {typeof dashboardData.period.startDate === 'string'
-                        ? new Date(dashboardData.period.startDate).toLocaleDateString('es-ES')
-                        : (dashboardData.period.startDate as Date).toLocaleDateString('es-ES')}{' '}
-                      -{' '}
-                      {typeof dashboardData.period.endDate === 'string'
-                        ? new Date(dashboardData.period.endDate).toLocaleDateString('es-ES')
-                        : (dashboardData.period.endDate as Date).toLocaleDateString('es-ES')}
+                      {formatLocalDate(dashboardData.period.startDate)} - {formatLocalDate(dashboardData.period.endDate)}
                     </td>
                   </tr>
                   <tr className="border-b border-gray-200 bg-blue-50">

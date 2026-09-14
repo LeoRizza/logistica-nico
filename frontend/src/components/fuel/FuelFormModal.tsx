@@ -30,6 +30,7 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
   const [fuelHistory, setFuelHistory] = useState<FuelLog[]>([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [fuelDate, setFuelDate] = useState(new Date().toISOString().split('T')[0]);
 
   const { post, get } = useApi();
 
@@ -75,6 +76,7 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
       setNotes('');
       setError('');
       setLastOdometer(null);
+      setFuelDate(new Date().toISOString().split('T')[0]);
     }
   }, [isOpen]);
 
@@ -96,15 +98,15 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
   
   // Apply local date range filtering
   if (startDate) {
-    const startTimestamp = new Date(startDate).getTime();
+    // Agregamos T00:00:00 para forzar el parseo en la zona horaria local
+    const startTimestamp = new Date(startDate + 'T00:00:00').getTime();
     displayedHistory = displayedHistory.filter(
       (log) => new Date(log.created_at).getTime() >= startTimestamp
     );
   }
   if (endDate) {
-    const end = new Date(endDate);
-    end.setUTCHours(23, 59, 59, 999); // Incluir todo el último día
-    const endTimestamp = end.getTime();
+    // Agregamos T23:59:59 para incluir todo el último día en hora local
+    const endTimestamp = new Date(endDate + 'T23:59:59').getTime();
     displayedHistory = displayedHistory.filter(
       (log) => new Date(log.created_at).getTime() <= endTimestamp
     );
@@ -165,6 +167,7 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
         station_name: stationName.trim() || undefined,
         notes: notes.trim() || undefined,
         trip_id: trip?.id || undefined,
+        date: fuelDate,
       });
 
       if (!response?.success) {
@@ -217,6 +220,20 @@ export const FuelFormModal: React.FC<FuelFormModalProps> = ({
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
+
+        {/* Fuel Date */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Fecha de Carga *
+          </label>
+          <input
+            type="date"
+            value={fuelDate}
+            onChange={(e) => setFuelDate(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            disabled={loading}
+          />
+        </div>
 
         {/* Odometer Reading */}
         <div>

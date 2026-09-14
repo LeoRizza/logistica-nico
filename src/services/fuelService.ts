@@ -125,6 +125,7 @@ export class FuelService extends BaseService {
           distance_km: previousFuelLog ? distanceKm : null,
           liters_per_km: previousFuelLog ? litersPerKm : null,
           previous_fuel_log_id: previousFuelLog?.id ?? null,
+          created_at: input.date ? new Date(input.date + 'T12:00:00Z') : undefined,
         },
       });
 

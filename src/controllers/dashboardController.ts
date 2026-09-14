@@ -49,9 +49,12 @@ export class DashboardController extends BaseController {
         return;
       }
 
-      // Validar que startDate sea menor que endDate
-      if (startDateObj >= endDateObj) {
-        this.sendError(res, 'Start date must be before end date', 400, undefined, req);
+      // Estirar el endDate hasta el final del día (23:59:59.999)
+      endDateObj.setUTCHours(23, 59, 59, 999);
+
+      // Validar que startDate no sea estrictamente mayor que endDate
+      if (startDateObj > endDateObj) {
+        this.sendError(res, 'Start date must be before or equal to end date', 400, undefined, req);
         return;
       }
 

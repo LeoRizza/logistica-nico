@@ -146,6 +146,7 @@ export interface CreateFuelLogInput {
   location?: string;
   notes?: string;
   trip_id?: string;
+  date?: string | Date; // Optional: Manual creation date for financial accuracy
   created_by_id: string;
 }
 
